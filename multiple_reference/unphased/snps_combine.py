@@ -44,16 +44,17 @@ class Variant(object):
 
         for pileupcolumn in orig_sam.pileup(reference=self.chrom, start=start_pos, end=end_pos):
             if pileupcolumn.pos == start_pos:
+                count = 0
                 bases = set()
-                for count, read in enumerate(pileupcolumn.pileups, 1):
-                    quality = ord(read.alignment.qqual[read.qpos]) - 33
-                    bases.add(read.alignment.seq[read.qpos])
-                    if (read.alignment.seq[read.qpos] == self.real_reference_base and
-                            quality >= 20):
-                        orig_refList.append(read.alignment.qname)
-                    elif (read.alignment.seq[read.qpos] == self.real_alternate_base and
-                          quality >= 20):
-                        orig_altList.append(read.alignment.qname)
+                for read in pileupcolumn.pileups:
+                    if read.alignment.overlap(start_pos, end_pos) == 1:
+                        count += 1
+                        bases.add(read.alignment.seq[read.qpos])
+                        quality = ord(read.alignment.qqual[read.qpos]) - 33
+                        if read.alignment.seq[read.qpos] == self.real_reference_base and quality >= 20:
+                            orig_refList.append(read.alignment.qname)
+                        elif read.alignment.seq[read.qpos] == self.real_alternate_base and quality >= 20:
+                            orig_altList.append(read.alignment.qname)
                 # Check for three state SNPs
                 if len(bases) > 2:
                     return
@@ -66,16 +67,18 @@ class Variant(object):
 
         for pileupcolumn in new_sam.pileup(reference=self.chrom, start=start_pos, end=end_pos):
             if pileupcolumn.pos == start_pos:
+                count = 0
                 bases = set()
-                for count, read in enumerate(pileupcolumn.pileups, 1):
-                    quality = ord(read.alignment.qqual[read.qpos]) - 33
-                    bases.add(read.alignment.seq[read.qpos])
-                    if (read.alignment.seq[read.qpos] == self.real_reference_base and
-                        quality >= 20):
-                        new_refList.append(read.alignment.qname)
-                    elif (read.alignment.seq[read.qpos] == self.real_alternate_base and
-                          quality >= 20):
-                        new_altList.append(read.alignment.qname)
+                for read in pileupcolumn.pileups:
+                    if read.alignment.overlap(start_pos, end_pos) == 1:
+                        count += 1
+                        bases.add(read.alignment.seq[read.qpos])
+                        quality = ord(read.alignment.qqual[read.qpos]) - 33
+                        if read.alignment.seq[read.qpos] == self.real_reference_base and quality >= 20:
+                            new_refList.append(read.alignment.qname)
+                        elif read.alignment.seq[read.qpos] == self.real_alternate_base and quality >= 20:
+                            new_altList.append(read.alignment.qname)
+                # Check for three state SNPs
                 if len(bases) > 2:
                     return
                 # Check coverage
@@ -84,6 +87,7 @@ class Variant(object):
                     pass
                 else:
                     return
+
         orig_sam.close()
         new_sam.close()
 

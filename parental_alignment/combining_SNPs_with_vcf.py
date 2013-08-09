@@ -28,14 +28,17 @@ def get_new_row(orig_bam, new_bam, row):
 
     for pileupcolumn in orig_sam.pileup(reference=chrom, start=startpos, end=endpos):
         if pileupcolumn.pos == startpos:
+            count = 0
             bases = set()
-            for count, read in enumerate(pileupcolumn.pileups, 1):
-                quality = ord(read.alignment.qqual[read.qpos]) - 33
-                bases.add(read.alignment.seq[read.qpos])
-                if read.alignment.seq[read.qpos] == ref_base and quality >= 20:
-                    orig_ref_reads.append(read.alignment.qname)
-                elif read.alignment.seq[read.qpos] == alt_base and quality >= 20:
-                    orig_alt_reads.append(read.alignment.qname)
+            for read in pileupcolumn.pileups:
+                if read.alignment.overlap(startpos, endpos) == 1:
+                    count += 1
+                    bases.add(read.alignment.seq[read.qpos])
+                    quality = ord(read.alignment.qqual[read.qpos]) - 33
+                    if read.alignment.seq[read.qpos] == ref_base and quality >= 20:
+                        orig_ref_reads.append(read.alignment.qname)
+                    elif read.alignment.seq[read.qpos] == alt_base and quality >= 20:
+                        orig_alt_reads.append(read.alignment.qname)
             # Check for three state SNPs
             if len(bases) > 2:
                 return
@@ -48,14 +51,17 @@ def get_new_row(orig_bam, new_bam, row):
 
     for pileupcolumn in new_sam.pileup(reference=chrom, start=startpos, end=endpos):
         if pileupcolumn.pos == startpos:
+            count = 0
             bases = set()
-            for count, read in enumerate(pileupcolumn.pileups, 1):
-                quality = ord(read.alignment.qqual[read.qpos]) - 33
-                bases.add(read.alignment.seq[read.qpos])
-                if read.alignment.seq[read.qpos] == ref_base and quality >= 20:
-                    new_ref_reads.append(read.alignment.qname)
-                elif read.alignment.seq[read.qpos] == alt_base and quality >= 20:
-                    new_alt_reads.append(read.alignment.qname)
+            for read in pileupcolumn.pileups:
+                if read.alignment.overlap(startpos, endpos) == 1:
+                    count += 1
+                    bases.add(read.alignment.seq[read.qpos])
+                    quality = ord(read.alignment.qqual[read.qpos]) - 33
+                    if read.alignment.seq[read.qpos] == ref_base and quality >= 20:
+                        new_ref_reads.append(read.alignment.qname)
+                    elif read.alignment.seq[read.qpos] == alt_base and quality >= 20:
+                        new_alt_reads.append(read.alignment.qname)
             # Check for three state SNPs
             if len(bases) > 2:
                 return
