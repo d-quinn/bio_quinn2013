@@ -2,6 +2,8 @@
 
 ### Quinn, A.M.; Juneja, P.; Jiggins, F.M.
 
+![DOI](https://zenodo.org/badge/4398/d-quinn/bio_quinn2013.png)
+
 For recreating the analysis described in the paper
 
 ---
